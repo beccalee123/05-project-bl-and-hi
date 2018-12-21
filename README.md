@@ -6,8 +6,10 @@
 ### Author: Becca Lee and Hannah Ingham
 
 ### Links and Resources
+![Build Status](https://www.travis-ci.com/beccalee123/05-project.svg?branch=master)
+
 * [repo](https://github.com/beccalee123/05-project-bl-and-hi)
-* [travis](http://xyz.com)
+* [travis](](https://www.travis-ci.com/beccalee123/05-project))
 
 ### Modules
 #### `modulename.js`

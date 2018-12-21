@@ -1,15 +1,13 @@
 ![CF](http://i.imgur.com/7v5ASc8.png) LAB
 =================================================
 
-## Project Name
+## Buffers - Bitmap Transformer
 
-### Author: Student/Group Name
+### Author: Becca Lee and Hannah Ingham
 
 ### Links and Resources
-* [repo](http://xyz.com)
+* [repo](https://github.com/beccalee123/05-project-bl-and-hi)
 * [travis](http://xyz.com)
-* [back-end](http://xyz.com)
-* [front-end](http://xyz.com)
 
 ### Modules
 #### `modulename.js`

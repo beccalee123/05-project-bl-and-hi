@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/beccalee123/05-project-bl-and-hi#readme",
   "dependencies": {
+    "buffer": "^5.2.1",
     "eslint": "^5.10.0",
+    "fs": "0.0.1-security",
     "jest": "^23.6.0"
   }
 }

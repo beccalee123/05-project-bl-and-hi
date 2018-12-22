@@ -11,17 +11,15 @@ function Bitmap(filePath) {
   this.file = filePath;
   console.log('the file ', filePath);
 }
-let testBuf = new Bitmap('./assets/baldy.bmp');
+let testBuf = new Bitmap('./assets/test.bmp');
 
-// console.log(testBuf);
-
-let testFile = './assets/baldy.bmp';
+let testFile = './assets/test.bmp';
 
 //read a file in and returns a buffer
 let readPromise = new Promise (function(resolve, reject){
   fs.readFile(testFile, (err, data) =>{
     if(err){ console.log('error'); }
-    // console.log(data);
+    console.log('data length ', data);
     resolve(data);
   });
 });
@@ -32,11 +30,7 @@ let readPromise = new Promise (function(resolve, reject){
  */
 
 Bitmap.prototype.parse = function(buffer) {
-  // this.buffer = buffer;
-  // this.bitStart = buffer.toString('utf-8', 10, 14);
-  // this.headerSize = buffer.toString('utf-8', 14, 18);
 
-  this.type = buffer.slice(0, 2);
   this.fileHead = buffer.slice(0, 14);
   this.coreHead = buffer.slice(14, 50);
 
@@ -59,10 +53,13 @@ Bitmap.prototype.parse = function(buffer) {
 };
 
 
-
 readPromise.then((data)=>{
   testBuf.parse(data);
   // console.log('testBuf ', testBuf); 
+
+  // console.log(testBuf);
+  testBuf.last.fill('0000FF');
+  // console.log(testBuf.fill(0));
 
 
   let length = 0;
@@ -72,12 +69,17 @@ readPromise.then((data)=>{
     length += buf.length;
   });
 
-  // console.log('buff arry, ', bufferArray);
+  let clone = Buffer.concat( bufferArray, length);
 
-  let transformed = Buffer.concat( bufferArray, length);
+  console.log('clone ', clone.length);
 
-  console.log('tranformed' + transformed.toString());
-  // return transformed;
+  return clone;
 
+}).then((clone) => {
+  fs.writeFile('./assets/cloned.bmp', clone, (err) => {
+    if (err) {return console.error(err); }
+    // console.log('tranformed' + clone);
+    console.log('Image saved');
+  });
 });
 

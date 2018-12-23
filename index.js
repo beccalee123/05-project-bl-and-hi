@@ -1,7 +1,12 @@
 'use strict';
 
 const fs = require('fs');
-const Buffer = require('buffer/').Buffer;  
+const Buffer = require('buffer/').Buffer;
+const yTransformer = require('./lib/ytransform.js');  
+const xTransformer = require('./lib/xtransform.js');
+const barsTransformer = require('./lib/barstransform.js');
+const colorTransformer = require('./lib/colortransform.js');
+
 /**
  * Bitmap -- receives a file name, used in the transformer to note the new buffer
  * @param filePath
@@ -19,7 +24,6 @@ let testFile = './assets/baldy.bmp';
 let readPromise = new Promise (function(resolve, reject){
   fs.readFile(testFile, (err, data) =>{
     if(err){ console.log('error'); }
-    console.log( data);
     resolve(data);
   });
 });
@@ -49,11 +53,8 @@ Bitmap.prototype.parse = function(buffer) {
 
 readPromise.then((data)=>{
   testBuf.parse(data);
-  console.log('original ', testBuf.pixelArray.length); 
-  let length = 0;
-  let bufferArray = Object.values(testBuf).splice(1);
-
-  // console.log(testBuf.pixelArray.toString('hex'));
+  // let length = 0;
+  // let bufferArray = Object.values(testBuf).splice(1);
 
   let rgbArray = [];
   let pixelString = testBuf.pixelArray.toString('hex');
@@ -64,7 +65,6 @@ readPromise.then((data)=>{
     rgbArray.push( parseInt( hex ,16) );
   }
 
-  // console.log( (rgbArray).length );
   let rowArray = [];
 
   for(let i = 0; i < rgbArray.length; i+=112){
@@ -72,13 +72,23 @@ readPromise.then((data)=>{
     rowArray.push(oneRowArr);
   }
 
+  // yTransformer.flipY(rowArray);
+
+  // xTransformer.flipX(rowArray);
+
+  // barsTransformer.color(rowArray);
+
+  // colorTransformer.yellowTransform(testBuf);
+  
+  colorTransformer.blueTransform(testBuf);
+
+  // console.log('hexarr', hexArr);
+
   //making the color table one array
   let newRowArray = [];
   for(let i = 0; i< rowArray.length; i++){
     newRowArray= newRowArray.concat(rowArray[i]);
   }
-
-  // console.log(newRowArray);
 
   //making rgb values into hex values
   newRowArray = newRowArray.map(rgb=>{
@@ -90,27 +100,21 @@ readPromise.then((data)=>{
     return rgb;
   });
 
-  // console.log(newRowArray);
-
+  // Converting matrix to buffer
   let hexString = newRowArray.join('');
 
-  console.log('trying to get value ', Buffer.from( hexString, 'hex') );
-  
   let transPixelArray = Buffer.alloc(14000);
 
   testBuf.pixelArray = transPixelArray.fill( hexString, 'hex');
-  // console.log('string length', hexString.length, hexString.slice(0, 100), hexString.slice(7000, 7100), '     ', hexString.slice(13900, 14000));
 
+  // concatenating buffer pieces
   let cloned = Buffer.concat([testBuf.start, testBuf.colorArray, testBuf.pixelArray], 15146);
-  // console.log('cloned', cloned.readInt(1146, 15146));
 
   return cloned;
 
 }).then((clone) => {
   fs.writeFile('./assets/clone.bmp', clone, (err) => {
     if (err) {return console.error(err); }
-    // console.log('tranformed' + clone);
     console.log('Image saved');
   });
 });
-

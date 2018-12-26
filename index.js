@@ -53,11 +53,11 @@ Bitmap.prototype.parse = function(buffer) {
 
 
 readPromise.then((data)=>{
-  let testBuf = new Bitmap(args[0]);
-  testBuf.parse(data);
+  let bmpObj = new Bitmap(args[0]);
+  bmpObj.parse(data);
 
   let rgbArray = [];
-  let pixelString = testBuf.pixelArray.toString('hex');
+  let pixelString = bmpObj.pixelArray.toString('hex');
 
   //transforming hex values to rgb values
   for(let i = 0; i< pixelString.length; i+=2){
@@ -72,7 +72,6 @@ readPromise.then((data)=>{
     rowArray.push(oneRowArr);
   }
 
-
   ////executing transformation from command line argument
   if(args[1] == 'flip-vertical'){
     yTransformer.flipY(rowArray); 
@@ -85,16 +84,16 @@ readPromise.then((data)=>{
     barsTransformer.color(rowArray);
   }
 
+  else if (args[1] == 'skew'){
+    diagonal.matrixShift(rowArray);
+  }
+
   else if (args[1] == 'yellow'){
-    colorTransformer.yellowTransform(testBuf);
+    colorTransformer.yellowTransform(bmpObj);
   }
 
   else if (args[1] == 'green'){
-    colorTransformer.greenTransform(testBuf);
-  }
-
-  else if (args[1] == 'skew'){
-    diagonal.matrixShift(rowArray);
+    colorTransformer.greenTransform(bmpObj);
   }
 
   //making the color table one array
@@ -116,15 +115,15 @@ readPromise.then((data)=>{
   // Converting matrix to buffer
   let hexString = newRowArray.join('');
   let transPixelArray = Buffer.alloc(14000);
-  testBuf.pixelArray = transPixelArray.fill( hexString, 'hex');
+  bmpObj.pixelArray = transPixelArray.fill( hexString, 'hex');
 
   // concatenating buffer pieces
-  let cloned = Buffer.concat([testBuf.start, testBuf.colorArray, testBuf.pixelArray], 15146);
+  let cloned = Buffer.concat([bmpObj.start, bmpObj.colorArray, bmpObj.pixelArray], 15146);
 
   return cloned;
 
-}).then((clone) => {
-  fs.writeFile('./assets/clone.bmp', clone, (err) => {
+}).then((transform) => {
+  fs.writeFile('./assets/transform.bmp', transform, (err) => {
     if (err) {return console.error(err); }
     console.log('Image saved');
   });

@@ -6,6 +6,12 @@ const yTransformer = require('./lib/ytransform.js');
 const xTransformer = require('./lib/xtransform.js');
 const barsTransformer = require('./lib/barstransform.js');
 const colorTransformer = require('./lib/colortransform.js');
+const diagonal = require('./lib/diagonal.js');
+
+let args = process.argv.slice(2);
+
+console.log("please enter: 1) file 2) tranformation");
+
 
 /**
  * Bitmap -- receives a file name, used in the transformer to note the new buffer
@@ -14,15 +20,13 @@ const colorTransformer = require('./lib/colortransform.js');
  */
 function Bitmap(filePath) {
   this.file = filePath;
-  console.log('the file ', filePath);
+  console.log('file: ', filePath);
 }
-let testBuf = new Bitmap('./assets/baldy.bmp');
 
-let testFile = './assets/baldy.bmp';
 
 //read a file in and returns a buffer
 let readPromise = new Promise (function(resolve, reject){
-  fs.readFile(testFile, (err, data) =>{
+  fs.readFile(args[0], (err, data) =>{
     if(err){ console.log('error'); }
     resolve(data);
   });
@@ -39,22 +43,18 @@ Bitmap.prototype.parse = function(buffer) {
   this.fileHead = buffer.toString('ascii', 0, 14);
   this.offSet = buffer.readInt32LE(10);
 
-
   this.height = buffer.readInt32LE(22);//125
   this.width = buffer.readInt32LE(18);//110
 
   this.bitsPerPixel= buffer.readInt16LE(28);
   this.colorArray = buffer.slice(54, 1146);
   this.pixelArray = buffer.slice(1146, buffer.length);
-
-  return true;
 };
 
 
 readPromise.then((data)=>{
+  let testBuf = new Bitmap(args[0]);
   testBuf.parse(data);
-  // let length = 0;
-  // let bufferArray = Object.values(testBuf).splice(1);
 
   let rgbArray = [];
   let pixelString = testBuf.pixelArray.toString('hex');
@@ -65,24 +65,37 @@ readPromise.then((data)=>{
     rgbArray.push( parseInt( hex ,16) );
   }
 
+  //creating a matrix of rows
   let rowArray = [];
-
   for(let i = 0; i < rgbArray.length; i+=112){
     let oneRowArr = rgbArray.slice(i, i+112);
     rowArray.push(oneRowArr);
   }
 
-  // yTransformer.flipY(rowArray);
 
-  // xTransformer.flipX(rowArray);
+  ////executing transformation from command line argument
+  if(args[1] == 'flip-vertical'){
+    yTransformer.flipY(rowArray); 
+  }
+  else if (args[1] == 'flip-horizonal'){
+    xTransformer.flipY(rowArray);
+  }
 
-  // barsTransformer.color(rowArray);
+  else if (args[1] == 'behind-bars'){
+    barsTransformer.color(rowArray);
+  }
 
-  // colorTransformer.yellowTransform(testBuf);
-  
-  colorTransformer.blueTransform(testBuf);
+  else if (args[1] == 'yellow'){
+    colorTransformer.yellowTransform(testBuf);
+  }
 
-  // console.log('hexarr', hexArr);
+  else if (args[1] == 'green'){
+    colorTransformer.greenTransform(testBuf);
+  }
+
+  else if (args[1] == 'skew'){
+    diagonal.matrixShift(rowArray);
+  }
 
   //making the color table one array
   let newRowArray = [];
@@ -102,9 +115,7 @@ readPromise.then((data)=>{
 
   // Converting matrix to buffer
   let hexString = newRowArray.join('');
-
   let transPixelArray = Buffer.alloc(14000);
-
   testBuf.pixelArray = transPixelArray.fill( hexString, 'hex');
 
   // concatenating buffer pieces

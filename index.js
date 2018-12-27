@@ -10,7 +10,7 @@ const diagonal = require('./lib/diagonal.js');
 
 let args = process.argv.slice(2);
 
-console.log("please enter: 1) file 2) tranformation");
+console.log('please enter: 1) file 2) transformation (choose: flip-vertical, flip-horizontal, behind-bars, skew, yellow, or green)');
 
 
 /**
@@ -76,7 +76,7 @@ readPromise.then((data)=>{
   if(args[1] == 'flip-vertical'){
     yTransformer.flipY(rowArray); 
   }
-  else if (args[1] == 'flip-horizonal'){
+  else if (args[1] == 'flip-horizontal'){
     xTransformer.flipY(rowArray);
   }
 
